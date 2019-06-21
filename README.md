@@ -3,9 +3,10 @@
 [![Build Status](https://travis-ci.com/razee-io/RemoteResourceS3.svg?branch=master)](https://travis-ci.com/razee-io/RemoteResourceS3)
 ![GitHub](https://img.shields.io/github/license/razee-io/RemoteResourceS3.svg?color=success)
 
-RemoteResource is the foundation for implementing continuous deployment with
-kapitan. It retrieves and applies the configuration for all resources. RemoteResourceS3
-is a variant of RemoteResource the can easily authenticate with S3 object storages.
+RemoteResourceS3 is a variant of RemoteResource. RemoteResource is the foundation
+for implementing continuous deployment with kapitan. It retrieves and applies the
+configuration for all resources. RemoteResourceS3 extends that functionality by
+easily authenticate with S3 object storages.
 
 ## Install
 
@@ -52,7 +53,7 @@ spec:
 
 - `.spec.auth`
   - type: object
-  - required: oneOf [hmac, iam]
+  - required: oneOf [[hmac](#HMAC), [iam](#IAM)]
 - `.spec.requests`
   - type: array
   - items:
