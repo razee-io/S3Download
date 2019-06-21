@@ -53,7 +53,7 @@ spec:
 
 - `.spec.auth`
   - type: object
-  - required: oneOf [`[hmac](#HMAC)`, [iam](#IAM)]
+  - required: oneOf [[hmac](#HMAC), [iam](#IAM)]
 - `.spec.requests`
   - type: array
   - items:
