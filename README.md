@@ -25,9 +25,9 @@ metadata:
   namespace: <namespace>
 spec:
   auth:
-    hmac:
-      access_key_id: ***
-      secret_access_key: ***
+    # hmac:
+    #   access_key_id: <key id>
+    #   secret_access_key: <access key>
     iam:
       response_type: <provider response type>
       grant_type: <provider grant type>
@@ -99,7 +99,7 @@ Allows you to connect to s3 buckets using an IAM provider and api key.
   - Sample values for [IBM Cloud Object Storage](https://cloud.ibm.com/docs/services/cloud-object-storage/cli?topic=cloud-object-storage-curl)
     - response_type: "cloud_iam"
     - grant_type: "urn:ibm:params:oauth:grant-type:apikey"
-    - url: "https://iam.cloud.ibm.com/identity/token"
+    - url: "[https://iam.cloud.ibm.com/identity/token](https://iam.cloud.ibm.com/identity/token)"
 - Required Fields Schema:
   - `.spec.auth.iam.response_type`
     - type: string
@@ -113,8 +113,6 @@ Allows you to connect to s3 buckets using an IAM provider and api key.
     - type: object
       - required: [valueFrom.secretKeyRef.name, valueFrom.secretKeyRef.key]
       - optional: [valueFrom.secretKeyRef.namespace]
-
-
 
 ### Requests
 
