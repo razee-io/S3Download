@@ -5,8 +5,8 @@
 
 RemoteResourceS3 is a variant of RemoteResource. RemoteResource is the foundation
 for implementing continuous deployment with kapitan. It retrieves and applies the
-configuration for all resources. RemoteResourceS3 extends that functionality by
-easily authenticate with S3 object storages.
+configuration for all resources. RemoteResourceS3 extends that functionality by 
+supporting authentication to object storage services that implement the S3 interfaces.
 
 ## Install
 
