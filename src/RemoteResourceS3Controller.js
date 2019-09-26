@@ -27,48 +27,49 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
     super(params);
   }
 
-  _fixUrl(u){
-    if(u.pathname.charAt(u.pathname.length-1)==='/'){ //This is an S3 bucket
-      if(u.hostname.startsWith('s3.')){ //The bucket name is part of the path
-        let pathSegments=u.pathname.split('/');
+  _fixUrl(u) {
+    if (u.pathname.charAt(u.pathname.length - 1) === '/') { //This is an S3 bucket
+      if (u.hostname.startsWith('s3.')) { //The bucket name is part of the path
+        let pathSegments = u.pathname.split('/');
         pathSegments.shift(); //Discard the leading slash
-        u.pathname=pathSegments.shift();
-        u.search=`prefix=${pathSegments.join('/')}`;
+        u.pathname = pathSegments.shift();
+        u.search = `prefix=${pathSegments.join('/')}`;
       } else { //The bucket name is part of the hostname
-        let hostnameSegments=u.hostname.split('.');
+        let hostnameSegments = u.hostname.split('.');
         let bucket = hostnameSegments.shift();
-        u.hostname=hostnameSegments.join('.');
-        let prefix=u.pathname.slice(1,u.pathname.length);
-        u.search=`prefix=${prefix}`;
-        u.pathname=bucket;
+        u.hostname = hostnameSegments.join('.');
+        let prefix = u.pathname.slice(1, u.pathname.length);
+        u.search = `prefix=${prefix}`;
+        u.pathname = bucket;
       }
     }
     return u;
   }
 
-  async _getObjectList(bucketRequest){
-    let result=[];
-    let url = this._fixUrl(objectPath.get(bucketRequest,'options.url'));
+  async _getObjectList(bucketRequest) {
+    let result = [];
+    let url = this._fixUrl(objectPath.get(bucketRequest, 'options.url'));
     //get and parse xml
-      //clone bucketRequest
-      //set url to what is needed to get the object
-      // result.push(clonedRequest)
+    //  clone bucketRequest
+    //  set url to what is needed to get the object
+    //  result.push(clonedRequest)
     return result;
   }
 
   async added() {
     let requests = objectPath.get(this.data, ['object', 'spec', 'requests'], []);
-    let newRequests=[];
-    requests.forEach((r)=>{
-      let url = objectPath.get(r,'options.url');
-      if(url.endsWith('/')){
+    let newRequests = [];
+    requests.forEach((r) => {
+      let url = objectPath.get(r, 'options.url');
+      if (url.endsWith('/')) {
         let additionalRequests = this._getBucketObjectRequestList(r);
+        // remove url that ends with '/'
         newRequests.concat(additionalRequests);
       } else {
         newRequests.push(r);
       }
     });
-    objectPath.set(this.data, ['object', 'spec', 'requests'],newRequests);
+    objectPath.set(this.data, ['object', 'spec', 'requests'], newRequests);
     return await super.added();
   }
 
