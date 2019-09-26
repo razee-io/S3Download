@@ -52,31 +52,40 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
 
   async _getBucketObjectRequestList(bucketRequest) {
     const result = [];
-    const url = this._fixUrl(objectPath.get(bucketRequest, 'options.url'));
+    const bucketUrl = objectPath.get(bucketRequest, 'options.url', objectPath.get(bucketRequest, 'options.uri'));
+    objectPath.get(bucketRequest, 'options.url',bucketUrl);
+    objectPath.del(bucketRequest, 'options.uri');
+    const url = this._fixUrl(bucketUrl);
     bucketRequest.options.url=url;
     const objectListResponse = await this.download(bucketRequest.options);
-    const objectListString = objectListResponse.body;
-    const parser = new xml2js.Parser();
-    try {
-      const objectList = await parser.parseStringPromise(objectListString);
-      const xmlns= objectPath.get(objectList,'ListBucketResult.$.xmlns');
-      if(xmlns!=='http://s3.amazonaws.com/doc/2006-03-01/'){
-        this.log.warn(`Unexpected S3 bucket object list namespace of ${xmlns}.`);
+    if (objectListResponse.statusCode >= 200 && objectListResponse.statusCode < 300) {
+      this.log.debug(`Download ${objectListResponse.statusCode} ${url}`);
+      const objectListString = objectListResponse.body;
+      const parser = new xml2js.Parser();
+      try {
+        const objectList = await parser.parseStringPromise(objectListString);
+        const xmlns= objectPath.get(objectList,'ListBucketResult.$.xmlns');
+        if(xmlns!=='http://s3.amazonaws.com/doc/2006-03-01/'){
+          this.log.warn(`Unexpected S3 bucket object list namespace of ${xmlns}.`);
+        }
+        let bucket = objectPath.get(objectList,'ListBucketResult.Name');
+        let objectsArray = objectPath.get(objectList,'ListBucketResult.Contents',[]);
+        objectsArray.forEach((o) => {
+          const objectKey = objectPath.get(o,'Key.0');
+          const reqClone = clone(bucketRequest);
+          const newUrl = new URL(url);
+          newUrl.pathname=`${bucket}/${objectKey}`;
+          newUrl.searchParams.delete('prefix');
+          reqClone.options.url=newUrl.toString();
+          result.push(reqClone);
+        });
       }
-      let bucket = objectPath.get(objectList,'ListBucketResult.Name');
-      let objectsArray = objectPath.get(objectList,'ListBucketResult.Contents',[]);
-      objectsArray.forEach((o) => {
-        const objectKey = objectPath.get(o,'Key.0');
-        const reqClone = clone(bucketRequest);
-        const newUrl = new URL(url);
-        newUrl.pathname=`${bucket}/${objectKey}`;
-        newUrl.searchParams.delete('prefix');
-        reqClone.options.url=newUrl.toString();
-        result.push(reqClone);
-      });
-    }
-    catch(err) {
-      this.log.error(err, `Error getting bucket listing for ${url}`);
+      catch(err) {
+        this.log.error(err, `Error getting bucket listing for ${url}`);
+      }
+    } else {
+      this.log.warn(`Download failed: ${objectListResponse.statusCode} | ${url}`);
+      return Promise.reject({ statusCode: objectListResponse.statusCode, uri: url });
     }
     return result;
   }
