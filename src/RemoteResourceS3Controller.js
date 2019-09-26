@@ -17,17 +17,21 @@
 const objectPath = require('object-path');
 const request = require('request-promise-native');
 const merge = require('deepmerge');
-const log = require('./bunyan-api').createLogger('RemoteResourceS3Controller');
+const xml2js = require('xml2js');
+const clone = require('clone');
+const loggerFactory = require('./bunyan-api');
 const { BaseDownloadController } = require('@razee/razeedeploy-core');
 
 
 module.exports = class RemoteResourceS3Controller extends BaseDownloadController {
   constructor(params) {
     params.finalizerString = params.finalizerString || 'children.downloads.deploy.razee.io';
+    params.logger = params.logger || loggerFactory.createLogger('RemoteResourceS3Controller');
     super(params);
   }
 
-  _fixUrl(u) {
+  _fixUrl(url) {
+    const u = new URL(url);
     if (u.pathname.charAt(u.pathname.length - 1) === '/') { //This is an S3 bucket
       if (u.hostname.startsWith('s3.')) { //The bucket name is part of the path
         let pathSegments = u.pathname.split('/');
@@ -43,34 +47,56 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
         u.pathname = bucket;
       }
     }
-    return u;
+    return u.toString();
   }
 
-  async _getObjectList(bucketRequest) {
-    let result = [];
-    let url = this._fixUrl(objectPath.get(bucketRequest, 'options.url'));
-    //get and parse xml
-    //  clone bucketRequest
-    //  set url to what is needed to get the object
-    //  result.push(clonedRequest)
+  async _getBucketObjectRequestList(bucketRequest) {
+    const result = [];
+    const url = this._fixUrl(objectPath.get(bucketRequest, 'options.url'));
+    bucketRequest.options.url=url;
+    const objectListResponse = await this.download(bucketRequest.options);
+    const objectListString = objectListResponse.body;
+    const parser = new xml2js.Parser();
+    try {
+      const objectList = await parser.parseStringPromise(objectListString);
+      const xmlns= objectPath.get(objectList,'ListBucketResult.$.xmlns');
+      if(xmlns!=='http://s3.amazonaws.com/doc/2006-03-01/'){
+        this.log.warn(`Unexpected S3 bucket object list namespace of ${xmlns}.`);
+      }
+      let bucket = objectPath.get(objectList,'ListBucketResult.Name');
+      let objectsArray = objectPath.get(objectList,'ListBucketResult.Contents',[]);
+      objectsArray.forEach((o) => {
+        const objectKey = objectPath.get(o,'Key.0');
+        const reqClone = clone(bucketRequest);
+        const newUrl = new URL(url);
+        newUrl.pathname=`${bucket}/${objectKey}`;
+        newUrl.searchParams.delete('prefix');
+        reqClone.options.url=newUrl.toString();
+        result.push(reqClone);
+      });
+    }
+    catch(err) {
+      this.log.error(err, `Error getting bucket listing for ${url}`);
+    }
     return result;
   }
 
   async added() {
     let requests = objectPath.get(this.data, ['object', 'spec', 'requests'], []);
     let newRequests = [];
-    requests.forEach((r) => {
+    for(let i = 0; i<requests.length;i++){
+      let r = requests[i];
       let url = objectPath.get(r, 'options.url');
       if (url.endsWith('/')) {
-        let additionalRequests = this._getBucketObjectRequestList(r);
-        // remove url that ends with '/'
-        newRequests.concat(additionalRequests);
+        let additionalRequests = await this._getBucketObjectRequestList(r);
+        newRequests = newRequests.concat(additionalRequests);
       } else {
         newRequests.push(r);
       }
-    });
+    }
     objectPath.set(this.data, ['object', 'spec', 'requests'], newRequests);
-    return await super.added();
+    let result = await super.added();
+    return result;
   }
 
   async download(reqOpt) {
@@ -97,7 +123,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
       objectPath.set(options, 'headers.Authorization', `bearer ${bearerToken}`);
     }
     let opt = merge(reqOpt, options);
-    log.debug(`Download ${opt.uri || opt.url}`);
+    this.log.debug(`Download ${opt.uri || opt.url}`);
 
     opt.simple = false;
     opt.resolveWithFullResponse = true;
