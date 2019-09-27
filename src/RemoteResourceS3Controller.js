@@ -55,7 +55,6 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
   async _getBucketObjectRequestList(bucketRequest) {
     const result = [];
     const bucketUrl = objectPath.get(bucketRequest, 'options.url', objectPath.get(bucketRequest, 'options.uri'));
-    objectPath.set(bucketRequest, 'options.url', bucketUrl);
     objectPath.del(bucketRequest, 'options.uri');
     const url = await this._fixUrl(bucketUrl);
     objectPath.set(bucketRequest, 'options.url', url);
