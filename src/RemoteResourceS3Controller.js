@@ -45,7 +45,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
       u.search = `prefix=${prefix}`;
       u.pathname = bucket;
     }
-    if(u.pathname==='/'){
+    if (u.pathname === '/') {
       this.log.error(`No bucket name found for ${url}`);
       return Promise.reject({ statusCode: 500, uri: url, message: `Error getting bucket name from ${url}` });
     }
