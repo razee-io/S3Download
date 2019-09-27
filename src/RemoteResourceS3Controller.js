@@ -55,7 +55,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
   async _getBucketObjectRequestList(bucketRequest) {
     const result = [];
     const bucketUrl = objectPath.get(bucketRequest, 'options.url', objectPath.get(bucketRequest, 'options.uri'));
-    objectPath.set(bucketRequest, 'options.url',bucketUrl);
+    objectPath.set(bucketRequest, 'options.url', bucketUrl);
     objectPath.del(bucketRequest, 'options.uri');
     const url = await this._fixUrl(bucketUrl);
     objectPath.set(bucketRequest, 'options.url', url);
@@ -66,23 +66,22 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
       const parser = new xml2js.Parser();
       try {
         const objectList = await parser.parseStringPromise(objectListString);
-        const xmlns= objectPath.get(objectList,'ListBucketResult.$.xmlns');
-        if(xmlns!=='http://s3.amazonaws.com/doc/2006-03-01/'){
+        const xmlns = objectPath.get(objectList, 'ListBucketResult.$.xmlns');
+        if (xmlns !== 'http://s3.amazonaws.com/doc/2006-03-01/') {
           this.log.warn(`Unexpected S3 bucket object list namespace of ${xmlns}.`);
         }
-        let bucket = objectPath.get(objectList,'ListBucketResult.Name');
-        let objectsArray = objectPath.get(objectList,'ListBucketResult.Contents',[]);
+        let bucket = objectPath.get(objectList, 'ListBucketResult.Name');
+        let objectsArray = objectPath.get(objectList, 'ListBucketResult.Contents', []);
         objectsArray.forEach((o) => {
-          const objectKey = objectPath.get(o,'Key.0');
+          const objectKey = objectPath.get(o, 'Key.0');
           const reqClone = clone(bucketRequest);
           const newUrl = new URL(url);
-          newUrl.pathname=`${bucket}/${objectKey}`;
+          newUrl.pathname = `${bucket}/${objectKey}`;
           newUrl.searchParams.delete('prefix');
           objectPath.set(reqClone, 'options.url', newUrl.toString());
           result.push(reqClone);
         });
-      }
-      catch(err) {
+      } catch (err) {
         this.log.error(err, `Error getting bucket listing for ${url}`);
         return Promise.reject({ statusCode: 500, uri: url, message: `Error getting bucket listing for ${url}` });
       }
@@ -96,7 +95,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
   async added() {
     let requests = objectPath.get(this.data, ['object', 'spec', 'requests'], []);
     let newRequests = [];
-    for(let i = 0; i<requests.length;i++){
+    for (let i = 0; i < requests.length; i++) {
       let r = requests[i];
       const url = new URL(objectPath.get(r, 'options.url'));
       if (url.pathname.endsWith('/')) { //This is an S3 bucket
