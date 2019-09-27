@@ -32,20 +32,18 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
 
   _fixUrl(url) {
     const u = new URL(url);
-    if (u.pathname.charAt(u.pathname.length - 1) === '/') { //This is an S3 bucket
-      if (u.hostname.startsWith('s3.')) { //The bucket name is part of the path
-        let pathSegments = u.pathname.split('/');
-        pathSegments.shift(); //Discard the leading slash
-        u.pathname = pathSegments.shift();
-        u.search = `prefix=${pathSegments.join('/')}`;
-      } else { //The bucket name is part of the hostname
-        let hostnameSegments = u.hostname.split('.');
-        let bucket = hostnameSegments.shift();
-        u.hostname = hostnameSegments.join('.');
-        let prefix = u.pathname.slice(1, u.pathname.length);
-        u.search = `prefix=${prefix}`;
-        u.pathname = bucket;
-      }
+    if (u.hostname.startsWith('s3.')) { //The bucket name is part of the path
+      let pathSegments = u.pathname.split('/');
+      pathSegments.shift(); //Discard the leading slash
+      u.pathname = pathSegments.shift();
+      u.search = `prefix=${pathSegments.join('/')}`;
+    } else { //The bucket name is part of the hostname
+      let hostnameSegments = u.hostname.split('.');
+      let bucket = hostnameSegments.shift();
+      u.hostname = hostnameSegments.join('.');
+      let prefix = u.pathname.slice(1, u.pathname.length);
+      u.search = `prefix=${prefix}`;
+      u.pathname = bucket;
     }
     return u.toString();
   }
@@ -53,10 +51,10 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
   async _getBucketObjectRequestList(bucketRequest) {
     const result = [];
     const bucketUrl = objectPath.get(bucketRequest, 'options.url', objectPath.get(bucketRequest, 'options.uri'));
-    objectPath.get(bucketRequest, 'options.url',bucketUrl);
+    objectPath.set(bucketRequest, 'options.url',bucketUrl);
     objectPath.del(bucketRequest, 'options.uri');
     const url = this._fixUrl(bucketUrl);
-    bucketRequest.options.url=url;
+    objectPath.set(bucketRequest, 'options.url', url);
     const objectListResponse = await this.download(bucketRequest.options);
     if (objectListResponse.statusCode >= 200 && objectListResponse.statusCode < 300) {
       this.log.debug(`Download ${objectListResponse.statusCode} ${url}`);
@@ -76,15 +74,16 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
           const newUrl = new URL(url);
           newUrl.pathname=`${bucket}/${objectKey}`;
           newUrl.searchParams.delete('prefix');
-          reqClone.options.url=newUrl.toString();
+          objectPath.set(reqClone, 'options.url', newUrl.toString());
           result.push(reqClone);
         });
       }
       catch(err) {
         this.log.error(err, `Error getting bucket listing for ${url}`);
+        return Promise.reject({ statusCode: 500, uri: url, message: `Error getting bucket listing for ${url}` });
       }
     } else {
-      this.log.warn(`Download failed: ${objectListResponse.statusCode} | ${url}`);
+      this.log.error(`Download failed: ${objectListResponse.statusCode} | ${url}`);
       return Promise.reject({ statusCode: objectListResponse.statusCode, uri: url });
     }
     return result;
@@ -95,8 +94,8 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
     let newRequests = [];
     for(let i = 0; i<requests.length;i++){
       let r = requests[i];
-      let url = objectPath.get(r, 'options.url');
-      if (url.endsWith('/')) {
+      const url = new URL(objectPath.get(r, 'options.url'));
+      if (url.pathname.endsWith('/')) { //This is an S3 bucket
         let additionalRequests = await this._getBucketObjectRequestList(r);
         newRequests = newRequests.concat(additionalRequests);
       } else {
