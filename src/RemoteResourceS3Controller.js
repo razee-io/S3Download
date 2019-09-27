@@ -30,7 +30,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
     super(params);
   }
 
-  _fixUrl(url) {
+  async _fixUrl(url) {
     const u = new URL(url);
     if (u.hostname.startsWith('s3.')) { //The bucket name is part of the path
       let pathSegments = u.pathname.split('/');
@@ -45,6 +45,10 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
       u.search = `prefix=${prefix}`;
       u.pathname = bucket;
     }
+    if(u.pathname==='/'){
+      this.log.error(`No bucket name found for ${url}`);
+      return Promise.reject({ statusCode: 500, uri: url, message: `Error getting bucket name from ${url}` });
+    }
     return u.toString();
   }
 
@@ -53,7 +57,7 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
     const bucketUrl = objectPath.get(bucketRequest, 'options.url', objectPath.get(bucketRequest, 'options.uri'));
     objectPath.set(bucketRequest, 'options.url',bucketUrl);
     objectPath.del(bucketRequest, 'options.uri');
-    const url = this._fixUrl(bucketUrl);
+    const url = await this._fixUrl(bucketUrl);
     objectPath.set(bucketRequest, 'options.url', url);
     const objectListResponse = await this.download(bucketRequest.options);
     if (objectListResponse.statusCode >= 200 && objectListResponse.statusCode < 300) {
