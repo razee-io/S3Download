@@ -134,13 +134,14 @@ This means you can specify things like headers for authentication in this sectio
   - optional: [any other other options to be passed along with the request]
   
 #### Download Directory Contents
-  - If url/uri ends with `/`, we will assume this is an S3 directory and will attempt to
-  download all resources in the directory.
-  - Every resource within the directory will be downloaded using the `.spec.requests.options`
-  provided with the directory url.
-  - Path must follow one of:
-    - `http://s3.endpoint.com/bucket/path/to/your/resources/`
-    - `http://bucket.s3.endpoint.com/path/to/your/resources/`
+
+- If url/uri ends with `/`, we will assume this is an S3 directory and will attempt to
+download all resources in the directory.
+- Every resource within the directory will be downloaded using the `.spec.requests.options`
+provided with the directory url.
+- Path must follow one of:
+  - `http://s3.endpoint.com/bucket/path/to/your/resources/`
+  - `http://bucket.s3.endpoint.com/path/to/your/resources/`
 
 #### Optional
 
