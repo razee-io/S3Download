@@ -21,7 +21,7 @@ kubectl apply -f "https://github.com/razee-io/RemoteResourceS3/releases/latest/d
 ### Sample
 
 ```yaml
-apiVersion: "deploy.razee.io/v1alpha1"
+apiVersion: "deploy.razee.io/v1alpha2"
 kind: RemoteResourceS3
 metadata:
   name: <remote_resource_s3_name>
