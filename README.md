@@ -1,7 +1,7 @@
 # RemoteResourceS3
 
 [![Build Status](https://travis-ci.com/razee-io/RemoteResourceS3.svg?branch=master)](https://travis-ci.com/razee-io/RemoteResourceS3)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=razee-io/razeedeploy-core)](https://dependabot.com)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=razee-io/RemoteResourceS3)](https://dependabot.com)
 ![GitHub](https://img.shields.io/github/license/razee-io/RemoteResourceS3.svg?color=success)
 
 RemoteResourceS3 is a variant of RemoteResource. RemoteResource is the foundation
