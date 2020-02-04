@@ -109,7 +109,6 @@ items:
                           x-kubernetes-preserve-unknown-fields: true
                         iam:
                           type: object
-                          required: [response_type, grant_type, url]
                           x-kubernetes-preserve-unknown-fields: true
                           properties:
                             response_type:
