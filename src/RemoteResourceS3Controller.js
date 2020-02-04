@@ -210,8 +210,8 @@ module.exports = class RemoteResourceS3Controller extends BaseDownloadController
     let res = await request.post({
       form: {
         apikey: apiKey,
-        response_type: iam.response_type,
-        grant_type: iam.grant_type
+        response_type: iam.responseType || iam.response_type,
+        grant_type: iam.grantType || iam.grant_type
       },
       timeout: 60000,
       url: iam.url,
