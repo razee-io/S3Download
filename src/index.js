@@ -20,8 +20,8 @@ const kubeApiConfig = KubeApiConfig();
 const ControllerString = 'RemoteResourceS3';
 const log = require('./bunyan-api').createLogger(ControllerString);
 
-const apiGroup = process.env.GROUP 
-const apiVersion = process.env.VERSION
+const apiGroup = process.env.GROUP;
+const apiVersion = process.env.VERSION;
 
 // TODO: not sure what this does 
 async function createClassicEventHandler(kc) {
