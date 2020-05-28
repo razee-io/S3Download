@@ -20,6 +20,10 @@ const kubeApiConfig = KubeApiConfig();
 const ControllerString = 'RemoteResourceS3';
 const log = require('./bunyan-api').createLogger(ControllerString);
 
+const apiGroup = process.env.GROUP 
+const apiVersion = process.env.VERSION
+
+// TODO: not sure what this does 
 async function createClassicEventHandler(kc) {
   let result;
   let resourceMeta = await kc.getKubeResourceMeta('kapitan.razee.io/v1alpha1', ControllerString, 'watch');
@@ -43,7 +47,7 @@ async function createClassicEventHandler(kc) {
 
 async function createNewEventHandler(kc) {
   let result;
-  let resourceMeta = await kc.getKubeResourceMeta('deploy.razee.io/v1alpha1', ControllerString, 'watch');
+  let resourceMeta = await kc.getKubeResourceMeta(`${apiGroup}/${apiVersion}`, ControllerString, 'watch');
   if (resourceMeta) {
     const Controller = require(`./${ControllerString}Controller`);
     let params = {

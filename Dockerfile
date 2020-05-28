@@ -26,6 +26,11 @@ WORKDIR /usr/src/app
 COPY . /usr/src/app
 RUN npm install --production --loglevel=warn
 
+ARG GROUP
+ARG VERSION
+ENV GROUP=$GROUP
+ENV VERSION=$VERSION
+
 
 FROM node:alpine
 RUN apk add --upgrade --no-cache libssl1.1
