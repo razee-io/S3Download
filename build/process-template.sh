@@ -25,4 +25,4 @@ export GIT_REMOTE
 
 envsubst <"${THIS_DIR}/viewTemplate.json" >/tmp/view.json
 
-npx must /tmp/view.json "${FILE}"
+npx mustache /tmp/view.json "${FILE}"
