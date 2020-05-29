@@ -8,13 +8,13 @@ services:
 env:
   - GROUP=deploy.razee.io
   - VERSION=v1alpha2
-  - REPO=quay.io/mxpaspa/rrs3-fork
+ # - REPO=quay.io/mxpaspa/rrs3-fork
 script:
   # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
   - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --low; else npx audit-ci --low || true; fi
   - npm run lint
   - npm test
-  - docker build --rm -t "${REPO}:${TRAVIS_COMMIT}" --build-arg GROUP=${GROUP} --build-arg VERSION=${VERSION}
+  - docker build --rm -t "quay.io/mxpaspa/rrs3-fork:${TRAVIS_COMMIT}" --build-arg GROUP=${GROUP} --build-arg VERSION=${VERSION}
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag ${REPO}:${TRAVIS_COMMIT} ${REPO}:${TRAVIS_TAG}; fi
   - if [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
   - docker images
