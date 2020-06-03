@@ -9,7 +9,7 @@ env:
   global:
     - GROUP=deploy.razee.io
     - VERSION=v1alpha2
-    - REPO=quay.io/mxpaspa/rrs3-fork
+    - REPO=quay.io/razee/remoteresources3
 script:
   # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
   - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --low; else npx audit-ci --low || true; fi

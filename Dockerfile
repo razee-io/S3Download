@@ -15,7 +15,6 @@
 ################################################################################
 
 FROM node:alpine as buildImg
-
 RUN apk update
 RUN apk --no-cache add gnupg python make curl
 
@@ -26,13 +25,12 @@ WORKDIR /usr/src/app
 COPY . /usr/src/app
 RUN npm install --production --loglevel=warn
 
-ARG GROUP
-ARG VERSION
-ENV GROUP=$GROUP
-ENV VERSION=$VERSION
-
 
 FROM node:alpine
+ARG GROUP_ARG="deploy.razee.io/v1alpha1"
+ARG VERSION_ARG="v1alpha1"
+ENV GROUP=$GROUP_ARG
+ENV VERSION=$VERSION_ARG
 RUN apk add --upgrade --no-cache libssl1.1
 RUN mkdir -p /usr/src/app
 ENV PATH="$PATH:/usr/src/app"

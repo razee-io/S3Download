@@ -23,7 +23,6 @@ const log = require('./bunyan-api').createLogger(ControllerString);
 const apiGroup = process.env.GROUP;
 const apiVersion = process.env.VERSION;
 
-// TODO: not sure what this does 
 async function createClassicEventHandler(kc) {
   let result;
   let resourceMeta = await kc.getKubeResourceMeta('kapitan.razee.io/v1alpha1', ControllerString, 'watch');
@@ -60,13 +59,15 @@ async function createNewEventHandler(kc) {
     };
     result = new EventHandler(params);
   } else {
-    log.error(`Unable to find KubeResourceMeta for deploy.razee.io/v1alpha1: ${ControllerString}`);
+    log.error(`Unable to find KubeResourceMeta for ${apiGroup}/${apiVersion}: ${ControllerString}`);
   }
   return result;
 }
 
 async function main() {
   log.info(`Running ${ControllerString}Controller.`);
+  log.info(`api group: ${apiGroup}`)
+  log.info(`api version ${apiVersion}`)
   const kc = new KubeClass(kubeApiConfig);
   const eventHandlers = [];
   eventHandlers.push(createClassicEventHandler(kc));
