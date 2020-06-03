@@ -66,8 +66,6 @@ async function createNewEventHandler(kc) {
 
 async function main() {
   log.info(`Running ${ControllerString}Controller.`);
-  log.info(`api group: ${apiGroup}`)
-  log.info(`api version ${apiVersion}`)
   const kc = new KubeClass(kubeApiConfig);
   const eventHandlers = [];
   eventHandlers.push(createClassicEventHandler(kc));

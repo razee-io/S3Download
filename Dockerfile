@@ -27,8 +27,8 @@ RUN npm install --production --loglevel=warn
 
 
 FROM node:alpine
-ARG GROUP_ARG="deploy.razee.io/v1alpha1"
-ARG VERSION_ARG="v1alpha1"
+ARG GROUP_ARG
+ARG VERSION_ARG
 ENV GROUP=$GROUP_ARG
 ENV VERSION=$VERSION_ARG
 RUN apk add --upgrade --no-cache libssl1.1
