@@ -23,27 +23,6 @@ const log = require('./bunyan-api').createLogger(ControllerString);
 const apiGroup = process.env.GROUP;
 const apiVersion = process.env.VERSION;
 
-async function createClassicEventHandler(kc) {
-  let result;
-  let resourceMeta = await kc.getKubeResourceMeta('kapitan.razee.io/v1alpha1', ControllerString, 'watch');
-  if (resourceMeta) {
-    const Controller = require(`./${ControllerString}Controller`);
-    let params = {
-      kubeResourceMeta: resourceMeta,
-      factory: Controller,
-      kubeClass: kc,
-      logger: log,
-      requestOptions: { qs: { timeoutSeconds: process.env.CRD_WATCH_TIMEOUT_SECONDS || 300 } },
-      livenessInterval: true,
-      finalizerString: 'client.featureflagset.kapitan.razee.io'
-    };
-    result = new EventHandler(params);
-  } else {
-    log.info(`Unable to find KubeResourceMeta for kapitan.razee.io/v1alpha1: ${ControllerString}`);
-  }
-  return result;
-}
-
 async function createNewEventHandler(kc) {
   let result;
   let resourceMeta = await kc.getKubeResourceMeta(`${apiGroup}/${apiVersion}`, ControllerString, 'watch');
@@ -68,7 +47,6 @@ async function main() {
   log.info(`Running ${ControllerString}Controller.`);
   const kc = new KubeClass(kubeApiConfig);
   const eventHandlers = [];
-  eventHandlers.push(createClassicEventHandler(kc));
   eventHandlers.push(createNewEventHandler(kc));
   return eventHandlers;
 }
