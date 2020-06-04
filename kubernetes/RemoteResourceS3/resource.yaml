@@ -80,11 +80,9 @@ items:
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
     spec:
       # group name to use for REST API: /apis/<group>/<version>
-      # deploy.razee.io
       group: "{{GROUP}}"
       # list of versions supported by this CustomResourceDefinition
       versions:
-        #v1alpha1
         - name: "{{VERSION}}"
           # Each version can be enabled/disabled by Served flag.
           served: true
