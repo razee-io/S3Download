@@ -46,6 +46,10 @@ items:
                     name: razeedeploy-overrides
                     key: CRD_WATCH_TIMEOUT_SECONDS
                     optional: true
+              - name: GROUP
+                value: {{GROUP}}
+              - name: VERSION
+                value: {{VERSION}}
             imagePullPolicy: Always
             name: remoteresources3-controller
             livenessProbe:
