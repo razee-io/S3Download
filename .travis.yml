@@ -14,7 +14,7 @@ script:
   - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --low; else npx audit-ci --low || true; fi
   - npm run lint
   - npm test
-  - docker build --rm -t "quay.io/razee/remoteresources3:${TRAVIS_COMMIT}" --build-arg GROUP=${GROUP} --build-arg VERSION=${VERSION} .
+  - docker build --rm -t "quay.io/razee/remoteresources3:${TRAVIS_COMMIT}" --build-arg GROUP=${GROUP_ARG} --build-arg VERSION=${VERSION_ARG} .
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/remoteresources3:${TRAVIS_COMMIT} quay.io/razee/remoteresources3:${TRAVIS_TAG}; fi
   - if [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
   - docker images
