@@ -24,7 +24,7 @@ const apiGroup = process.env.GROUP || 'deploy.razee.io';
 const apiVersion = process.env.VERSION || 'v1alpha2';
 
 async function createNewEventHandler(kc) {
-  log.info(`Starting ${ControllerString}Controller EventHandler for ${apiGroup}/${apiVersion}`);
+  log.info(`Starting EventHandler for ${apiGroup}/${apiVersion}`);
   let result;
   let resourceMeta = await kc.getKubeResourceMeta(`${apiGroup}/${apiVersion}`, ControllerString, 'watch');
   if (resourceMeta) {
