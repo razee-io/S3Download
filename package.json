@@ -18,11 +18,12 @@
     "test": "nyc --reporter=html --all --reporter=text mocha ",
     "test:debug": "mocha --inspect-brk",
     "check-coverage": "nyc check-coverage --statements 0 --branches 0 --functions 0 --lines 0",
-    "lint": "node_modules/.bin/npm-run-all eslint yamllint markdownlint",
-    "eslint": "node_modules/.bin/eslint src/",
-    "yamllint": "node_modules/.bin/yamllint .travis.yml kubernetes/RemoteResourceS3/resource.yaml",
-    "markdownlint": "node_modules/.bin/markdownlint README.md docs/",
-    "dockerlint": "node_modules/.bin/dockerlint Dockerfile"
+    "lint": "npx npm-run-all eslint yamllint markdownlint yaml-lint",
+    "eslint": "npx eslint src/",
+    "yamllint": "npx yamllint .travis.yml kubernetes/RemoteResourceS3/resource.yaml",
+    "markdownlint": "npx markdownlint README.md docs/",
+    "dockerlint": "npx dockerlint Dockerfile",
+    "yaml-lint": "npx yaml-lint kubernetes/RemoteResourceS3/resource.yaml"
   },
   "repository": {
     "type": "git",
