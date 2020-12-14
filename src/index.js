@@ -18,6 +18,7 @@ const { EventHandler, KubeClass, KubeApiConfig } = require('@razee/kubernetes-ut
 const kubeApiConfig = KubeApiConfig();
 
 const ControllerString = 'RemoteResourceS3';
+const Controller = require(`./${ControllerString}Controller`);
 const log = require('./bunyan-api').createLogger(ControllerString);
 
 const apiGroup = process.env.GROUP || 'deploy.razee.io';
@@ -28,7 +29,6 @@ async function createNewEventHandler(kc) {
   let result;
   let resourceMeta = await kc.getKubeResourceMeta(`${apiGroup}/${apiVersion}`, ControllerString, 'watch');
   if (resourceMeta) {
-    const Controller = require(`./${ControllerString}Controller`);
     let params = {
       kubeResourceMeta: resourceMeta,
       factory: Controller,
@@ -45,11 +45,43 @@ async function createNewEventHandler(kc) {
 }
 
 async function main() {
-  log.info(`Running ${ControllerString}Controller.`);
-  const kc = new KubeClass(kubeApiConfig);
-  const eventHandlers = [];
-  eventHandlers.push(createNewEventHandler(kc));
-  return eventHandlers;
+  let kc;
+  try {
+    log.info(`Running ${ControllerString}Controller.`);
+    kc = new KubeClass(kubeApiConfig);
+  } catch (e) {
+    log.error(e, 'Failed to get KubeClass.');
+  }
+  try {
+    await createNewEventHandler(kc);
+  } catch (e) {
+    log.error(e, 'Error creating new event handler.');
+  }
 }
 
-main().catch(e => log.error(e));
+function createEventListeners() {
+  process.on('SIGTERM', () => {
+    log.info('recieved SIGTERM. not handling at this time.');
+  });
+  process.on('unhandledRejection', (reason) => {
+    log.error('recieved unhandledRejection', reason);
+  });
+  process.on('beforeExit', (code) => {
+    log.info(`No work found. exiting with code: ${code}`);
+  });
+
+}
+
+async function run() {
+  try {
+    createEventListeners();
+    await main();
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+module.exports = {
+  run,
+  RemoteResourceS3Controller: Controller
+};

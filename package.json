@@ -2,7 +2,8 @@
   "name": "@razee/remoteresources3",
   "version": "0.0.0-dev",
   "description": "Razeedeploy: component to download and manage files from s3 object storage",
-  "main": "main.js",
+  "main": "./src/index.js",
+  "bin": "./bin/remoteresources3",
   "keywords": [
     "kubernetes",
     "razee",
