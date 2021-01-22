@@ -20,7 +20,6 @@
     "test:debug": "mocha --inspect-brk",
     "check-coverage": "nyc check-coverage --statements 0 --branches 0 --functions 0 --lines 0",
     "lint": "npx npm-run-all eslint markdownlint yaml-lint jsonlint shellcheck",
-    "lint-s390x": "npx npm-run-all eslint markdownlint yaml-lint jsonlint",
     "eslint": "npx eslint src/",
     "markdownlint": "npx markdownlint README.md docs/",
     "dockerlint": "npx dockerlint Dockerfile",
