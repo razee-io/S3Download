@@ -158,5 +158,3 @@ jobs:
          on:
            tags: true
            condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
-
-           
