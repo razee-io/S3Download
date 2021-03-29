@@ -51,9 +51,9 @@ items:
                       key: CRD_WATCH_TIMEOUT_SECONDS
                       optional: true
                 - name: USER_AGENT_NAME
-                  value:  razee-io/remoteresourceS3
+                  value: razee-io/remoteresourceS3
                 - name: USER_AGENT_VERSION
-                  value:  "{{{TRAVIS_TAG}}}"
+                  value: "{{{TRAVIS_TAG}}}"
                 - name: GROUP
                   value: "{{{GROUP}}}"
                 - name: VERSION
